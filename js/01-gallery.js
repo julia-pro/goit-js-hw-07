@@ -1,7 +1,5 @@
 import { galleryItems } from './gallery-items.js';
-// Change code below this line
 
-console.log(galleryItems);
 // Отримуємо посилання на контейнер галереї
 const galleryList = document.querySelector('.gallery');
 
