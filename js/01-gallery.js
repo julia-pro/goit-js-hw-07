@@ -45,9 +45,10 @@ renderImages();
 
 function onSelectImage(event) {
   event.preventDefault();
-  instance.element().querySelector('img').src = event.target.dataset.source;
-  instance.show();
-   
+  if (event.target.classList.contains('gallery__image')) {
+    instance.element().querySelector('img').src = event.target.dataset.source;
+    instance.show();
+  }
 }
 
  //Закриття кнопкою Escape
