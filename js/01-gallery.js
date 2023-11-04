@@ -1,82 +1,60 @@
 import { galleryItems } from './gallery-items.js';
 
-// Отримуємо посилання на контейнер галереї
-const galleryList = document.querySelector('.gallery');
+//console.log(galleryItems);
 
-// Створюємо розмітку із зображеннями галереї на основі масиву галереї
-const imageItem = createGalleryImages(galleryItems);
+const galleryContainer = document.querySelector('.gallery');
 
-// Функція створення елементів галереї
-function createGalleryImages (galleryItems) {
-   return galleryItems.map( ({ preview, original, description }) => {
-      return `
-         <li class="gallery__item">
-            <a class="gallery__link" href="#">
-               <img class="gallery__image" src="${preview}" data-source="${original}" alt="${description}" />
-            </a>
-         </li>
-      `;
-   }).join('');
+galleryContainer.addEventListener('click', onSelectImage);
+
+// Підключення біблотеки basicLightbox
+
+const instance = basicLightbox.create(`<img src="" />`, {
+  onShow: () => {
+    window.addEventListener('keydown', keydownEscape);
+  },
+  onClose: () => {
+    window.removeEventListener('keydown', keydownEscape);
+  },
+});
+
+//Створення і рендер розмітки 
+
+function renderImages() {
+    const markup = galleryItems
+        .map(
+            ({preview, original, description}) =>
+        `<div class="gallery__item">
+  <a class="gallery__link" href="${original}">
+    <img
+      class="gallery__image"
+      src="${preview}"
+      data-source="${original}"
+      alt="${description}"
+    />
+  </a>
+</div>`
+    )
+    .join('');
+    galleryContainer.insertAdjacentHTML('beforeend', markup);
+    //console.log(galleryContainer);
+}
+renderImages();
+
+// Отримання url великого зображення 
+
+function onSelectImage(event) {
+  event.preventDefault();
+  instance.element().querySelector('img').src = event.target.dataset.source;
+  instance.show();
+   
 }
 
-// Додаємо розмітку із зображеннями у контейнер галереї
-galleryList.insertAdjacentHTML('beforeend', imageItem);
+ //Закриття кнопкою Escape
 
-// Додаємо слухач на клік за зображенням галереї
-galleryList.addEventListener('click', onGalleryItem);
-
-// Обробник кліка з зображення галереї
-function onGalleryItem(evt) {
-   evt.preventDefault();
-
-   // Отримуємо посилання на елемент, яким клікнули
-   const clickElement = event.target;
-
-   // Перевіряємо, що клікнули саме на зображенні
-   const isImage = clickElement.tagName === 'IMG';
-
-   if (!isImage) {
-      return;
-   }
-
-   // Отримуємо посилання на оригінальне зображення
-   const originalUrl = clickElement.dataset.source;
-
-   // Створюємо модальне вікно з оригінальним зображенням
-   const modal = basicLightbox.create(`
-      <div class="modal">
-         <img src="${originalUrl}" alt="">
-      </div>
-   `,
-     {
-       onShow: instance => {}, 
-       onClose: instance => {},
-     }
-   );
-
-   // Отримуємо посилання на зображення усередині модального вікна
-   const img = modal.element().querySelector('img');
-
-   // Встановлюємо джерело зображення відповідно до оригінального зображення
-   img.src = originalUrl;
-
-   // Відображаємо модальне вікно
-   modal.show();
-
-   // Виводимо посилання на оригінальне зображення у консоль
-   console.log(originalUrl);
-
-   // Додаємо слухач на закриття модального вікна після натискання клавіші Esc
-   document.addEventListener('keydown', onModalKeyDown);
-
-   // Обробник натискання клавіші Esc при відкритому модальному вікні
-   function onModalKeyDown(evt) {
-      if (evt.code === 'Escape') {
-         // Закриваємо модальне вікно
-         modal.close();
-
-         // Видаляємо обробник натискання кнопки Esc після закриття модального вікна
-         document.removeEventListener('keydown', onModalKeyDown);
-      }
-   }
+ function keydownEscape(event) {
+  console.log(event);
+  if (event.key === 'Escape') {
+    instance.close();
+    return;
+  }
 }
